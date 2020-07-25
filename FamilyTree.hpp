@@ -33,24 +33,21 @@ public:
     void setMother(Tree* mother);
     
     
-    Tree* find_name_req(Tree* T, string name);
-    string find_name_level_req(Tree* T, string name, int current_level);
-    string member_rel(Tree* T, string name);
+    // name null ? , Tree* find_name_req(Tree* T, string name), new
     Tree& addFather(string name, string father);
+    // name null ? , Tree* find_name_req(Tree* T, string name), new
     Tree& addMother(string name, string father);
+    //Gets the name of someone in the tree, and restores the relationship between him and you
+    //me,f,m
+    //string find_name_level_req(Tree* T, string name, int current_level)
     string relation(string name);
+    //get relation -> return preson name
+    //string member_rel(Tree* T, string name);, delimiter "-"
     string find(string name);
+
     void display();
     void remove(string name);
-    Tree* deletTree(string name, Tree* T);
-    ~Tree() {
-        if (this->father) {
-            delete this->father;
-        }
-        if (this->mother) {
-            delete this->mother;
-        }
+    //Tree* deletTree(string name, Tree* T);
+    ~Tree() {}
     };
 };
-};
-

@@ -36,29 +36,29 @@ Tree* Tree::getMother() {
 void Tree::setMother(Tree* mother) {
     this->mother = mother;
 }
-
-Tree* Tree::find_name_req(Tree* T, string name) {
-    if(T->name == name) {
+//Returns the sub-tree whose name is its root
+Tree* find_name_req(Tree* T, string name) {
+    if(T->getName() == name) {
         return T;
     }
     Tree* t = NULL;
-    if (T->father) {
-        t = find_name_req(T->father, name);
+    if (T->getFather()) {
+        t = find_name_req(T->getFather(), name);
         if (t) return t;
     }
-    if (T->mother) {
-        t = find_name_req(T->mother, name);
+    if (T->getMother()) {
+        t = find_name_req(T->getMother(), name);
         if (t) return t;
     }
     return t ;
 }
 
-string Tree::find_name_level_req(Tree* T, string name, int current_level) {
+string find_name_level_req(Tree* T, string name, int current_level) {
     if(T == NULL)
     {
         return "";
     }
-    if(T->father != NULL && T->father->getName() == name)
+    if(T->getFather() != NULL && T->getFather()->getName() == name)
     {
         string s = "grandfather";
         for(int i=0; i<current_level; i++)
@@ -68,7 +68,7 @@ string Tree::find_name_level_req(Tree* T, string name, int current_level) {
         return s;
     }
     
-    if(T->mother != NULL && T->mother->getName() == name)
+    if(T->getMother() != NULL && T->getMother()->getName() == name)
     {
         string s = "grandmother";
         for(int i=0; i<current_level; i++)
@@ -77,12 +77,12 @@ string Tree::find_name_level_req(Tree* T, string name, int current_level) {
         }
         return s;
     }
-    string f = find_name_level_req(T->father, name, current_level+1);
+    string f = find_name_level_req(T->getFather(), name, current_level+1);
     if(!f.empty())
     {
         return f;
     }
-    string m = find_name_level_req(T->mother, name, current_level+1);
+    string m = find_name_level_req(T->getMother(), name, current_level+1);
     if(!m.empty())
     {
         return m;
@@ -90,7 +90,7 @@ string Tree::find_name_level_req(Tree* T, string name, int current_level) {
     return "";
 }
 
-string Tree::member_rel(Tree* T, string name)
+string member_rel(Tree* T, string name)
 {
     if(name.empty() || T == NULL)
     {
@@ -98,17 +98,17 @@ string Tree::member_rel(Tree* T, string name)
     }
     if(name == "grandfather")
     {
-        if(T->father != NULL)
+        if(T->getFather() != NULL)
         {
-            return T->father->getName();
+            return T->getFather()->getName();
         }
         return "";
     }
     if(name == "grandmother")
     {
-        if(T->mother != NULL)
+        if(T->getMother() != NULL)
         {
-            return T->mother->getName();
+            return T->getMother()->getName();
         }
         return "";
     }
@@ -120,19 +120,19 @@ string Tree::member_rel(Tree* T, string name)
         return "";
     }
     //cout << token << endl;
-    string m = member_rel(T->mother, token);
+    string m = member_rel(T->getMother(), token);
     if(!m.empty())
     {
         return m;
     }
-    string f = member_rel(T->father, token);
+    string f = member_rel(T->getFather(), token);
     if(!f.empty())
     {
         return f;
     }
     return "";
 }
-
+// name null ? , Tree* find_name_req(Tree* T, string name), new
 Tree& Tree::addFather(string name, string father) {
     
     if(father.empty())
@@ -151,7 +151,7 @@ Tree& Tree::addFather(string name, string father) {
     Tname->father = new Tree(father) ;
     return *this;
 }
-
+// name null ? , Tree* find_name_req(Tree* T, string name), new
 Tree& Tree::addMother(string name, string mother) {
     Tree* Tname = find_name_req(this, name) ;
     if(mother.empty())
@@ -170,9 +170,32 @@ Tree& Tree::addMother(string name, string mother) {
     return *this;
 }
 
+/*#define COUNT 10
+void display_req(Tree* T, int space, Tree* T1) {
+    if (T->getName().empty()){
+        return ;
+    }
+    space += COUNT;
+    if (T->getFather() != NULL) {
+        display_req(T->getFather(), space, T1);
+    }
+    cout << endl;
+    for (int i = COUNT; i < space; i++) {
+        cout<<" ";
+    }
+    cout << T1->relation(T->getName()) << "\n";
+    if (T->getMother() != NULL) {
+        display_req(T->getMother(), space, T1);
+    }
+}
+void Tree::display() {
+    display_req(this, 0, this);
+}
+*/
+
 #define COUNT 10
 void display_req(Tree* T, int space) {
-    if (T->getName().empty()) {
+    if (T->getName().empty()){
         return ;
     }
     space += COUNT;
@@ -192,11 +215,12 @@ void display_req(Tree* T, int space) {
 void Tree::display() {
     display_req(this, 0);
 }
-
+ //Gets the name of someone in the tree, and restores the relationship between him and you
+//me,f,m
+//string find_name_level_req(Tree* T, string name, int current_level)
 string Tree::relation(string name) {
     
-    if(name.empty())
-    {
+    if(name.empty()){
         throw runtime_error ("got empty string");
     }
     if (this->name == name) {
@@ -223,6 +247,8 @@ string Tree::relation(string name) {
     return "unrelated";
 }
 
+//get relation -> return preson name
+//string member_rel(Tree* T, string name);, delimiter "-"
 string Tree::find(string name) {
     //CHECK_THROW_STR(name.empty(), "got empty string");
     if(name.empty())
@@ -263,21 +289,21 @@ string Tree::find(string name) {
 }
 
 
-Tree* Tree::deletTree(string name, Tree* T)
+Tree* deletTree(string name, Tree* T)
 {
     if (T) {
-        if (T->father != NULL && T->father->name == name) {
+        if (T->getFather() != NULL && T->getFather()->getName() == name) {
             return T;
         }
-        if (T->mother != NULL && T->mother->name == name) {
+        if (T->getMother() != NULL && T->getMother() ->getName() == name) {
             return T;
         }
         
-        Tree* father = deletTree(name, T->father);
+        Tree* father = deletTree(name, T->getFather());
         if (father != NULL) {
             return father;
         }
-        Tree* mother = deletTree(name, T->mother);
+        Tree* mother = deletTree(name, T->getMother());
         if (mother != NULL) {
             return mother;
         }
@@ -286,8 +312,8 @@ Tree* Tree::deletTree(string name, Tree* T)
     return NULL;
 }
 
-void Tree::remove(string name)
-{
+void Tree::remove(string name){
+    //Tree* deletTree(string name, Tree* T);
     Tree* T = deletTree(name, this);
     if (T) {
         if (T->father && T->father->name == name) {
